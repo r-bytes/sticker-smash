@@ -1,18 +1,23 @@
+import domtoimage from "dom-to-image"
 import * as ImagePicker from "expo-image-picker"
+import * as MediaLibrary from "expo-media-library"
 import { StatusBar } from "expo-status-bar"
-import { useState } from "react"
-import { StyleSheet, View } from "react-native"
-import { Button, CircleButton, EmojiList, EmojiPicker, EmojiSticker, IconButton, ImageViewer } from "./components/"
+import { useRef, useState } from "react"
+import { Platform, StyleSheet, View } from "react-native"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
+import { captureRef } from "react-native-view-shot"
+import { Button, CircleButton, EmojiList, EmojiPicker, EmojiSticker, IconButton, ImageViewer } from "./components/"
 
 const placeholderImage = require("./assets/images/background-image.png")
 
 export default function App() {
+  const [status, requestPermission] = MediaLibrary.usePermissions()
   const [showAppOptions, setShowAppOptions] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [pickedEmoji, setPickedEmoji] = useState(null)
 
+  const imageRef = useRef(null)
 
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -29,28 +34,65 @@ export default function App() {
     }
   }
 
-    const onReset = () => {
-      setShowAppOptions(false)
-    }
+  if (status === null) {
+    requestPermission()
+  }
 
-    const onAddSticker = () => {
-      setIsModalVisible(true)
-    }
+  const onReset = () => {
+    setShowAppOptions(false)
+  }
 
-    const onModalClose = () => {
-      setIsModalVisible(false)
-    }
+  const onAddSticker = () => {
+    setIsModalVisible(true)
+  }
 
-    const onSaveImageAsync = async () => {
-      // we will implement this later
+  const onModalClose = () => {
+    setIsModalVisible(false)
+  }
+
+  const onSaveImageAsync = async () => {
+    if (Platform.OS !== "web") {
+      try {
+        const localUri = await captureRef(imageRef, {
+          height: 440,
+          quality: 1,
+        })
+
+        await MediaLibrary.saveToLibraryAsync(localUri)
+        if (localUri) {
+          alert("Saved!")
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    } else {
+      try {
+        const dataUrl = await domtoimage.toJpeg(imageRef.current, {
+          quality: 0.95,
+          width: 320,
+          height: 440,
+        })
+
+        let link = document.createElement("a")
+
+        link.download = "sticker-smash.jpeg"
+        link.href = dataUrl
+        link.click()
+
+      } catch (e) {
+        console.log(e)
+      }
     }
+  }
 
   return (
     <GestureHandlerRootView style={styles.container}>
       <View style={styles.imageContainer}>
-        <ImageViewer placeholderImageSource={placeholderImage} selectedImage={selectedImage} />
-        {/* conditionally render the sticker */}
-        {pickedEmoji && <EmojiSticker imageSize={40} stickerSource={pickedEmoji} />}
+        <View ref={imageRef} collapsable={false}>
+          <ImageViewer placeholderImageSource={placeholderImage} selectedImage={selectedImage} />
+          {/* conditionally render the sticker */}
+          {pickedEmoji && <EmojiSticker imageSize={40} stickerSource={pickedEmoji} />}
+        </View>
       </View>
       {showAppOptions ? (
         <View style={styles.optionsContainer}>
