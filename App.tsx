@@ -3,6 +3,7 @@ import { StatusBar } from "expo-status-bar"
 import { useState } from "react"
 import { StyleSheet, View } from "react-native"
 import { Button, CircleButton, EmojiList, EmojiPicker, EmojiSticker, IconButton, ImageViewer } from "./components/"
+import { GestureHandlerRootView } from "react-native-gesture-handler"
 
 const placeholderImage = require("./assets/images/background-image.png")
 
@@ -45,7 +46,7 @@ export default function App() {
     }
 
   return (
-    <View style={styles.container}>
+    <GestureHandlerRootView style={styles.container}>
       <View style={styles.imageContainer}>
         <ImageViewer placeholderImageSource={placeholderImage} selectedImage={selectedImage} />
         {/* conditionally render the sticker */}
@@ -70,7 +71,7 @@ export default function App() {
         <EmojiList onSelect={setPickedEmoji} onCloseModal={onModalClose} />
       </EmojiPicker>
       <StatusBar style="auto" />
-    </View>
+    </GestureHandlerRootView>
   )
 }
 
