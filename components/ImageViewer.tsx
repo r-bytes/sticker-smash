@@ -3,9 +3,17 @@ import { Image, ImageRequireSource, ImageURISource, StyleSheet } from "react-nat
 /**
  * @see https://reactnative.dev/docs/image#source
  */
-type ImageSourcePropType = ImageURISource | ImageURISource[] | ImageRequireSource
+type ImageSourceType = ImageURISource | ImageURISource[] | ImageRequireSource
 
-export default function ImageViewer({ imageSource }: { imageSource: ImageSourcePropType }) {
+export default function ImageViewer({
+  placeholderImageSource,
+  selectedImage,
+}: {
+  placeholderImageSource: ImageSourceType
+  selectedImage: string
+}) {
+  const imageSource = selectedImage ? { uri: selectedImage } : placeholderImageSource;
+  // console.log(imageSource)
   return <Image source={imageSource} style={styles.image} />
 }
 
