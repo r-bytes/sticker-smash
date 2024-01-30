@@ -2,7 +2,7 @@ import * as ImagePicker from "expo-image-picker"
 import { StatusBar } from "expo-status-bar"
 import { useState } from "react"
 import { StyleSheet, View } from "react-native"
-import { Button, CircleButton, EmojiPicker, IconButton, ImageViewer } from "./components/"
+import { Button, CircleButton, EmojiList, EmojiPicker, IconButton, ImageViewer } from "./components/"
 
 const placeholderImage = require("./assets/images/background-image.png")
 
@@ -10,6 +10,7 @@ export default function App() {
   const [showAppOptions, setShowAppOptions] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const [pickedEmoji, setPickedEmoji] = useState(null)
 
 
   const pickImageAsync = async () => {
@@ -64,6 +65,7 @@ export default function App() {
       )}
       <EmojiPicker isVisible={isModalVisible} onClose={onModalClose}>
         {/* A list of emoji component will go here */}
+        <EmojiList onSelect={setPickedEmoji} onCloseModal={onModalClose} />
       </EmojiPicker>
       <StatusBar style="auto" />
     </View>
